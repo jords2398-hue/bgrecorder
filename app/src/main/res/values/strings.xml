@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">백그라운드 녹화</string>
+    <string name="app_name">IMGIE</string>
     <string name="intro">녹화를 시작한 뒤 홈 버튼을 눌러도 촬영이 계속됩니다. 촬영 중에는 상단에 알림이 항상 표시되고, 알림의 \'중지\' 버튼으로 끝낼 수 있습니다.</string>
     <string name="status_idle">대기 중</string>
     <string name="status_recording">● 녹화 중</string>
