@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">백그라운드 녹화</string>
+    <string name="intro">녹화를 시작한 뒤 홈 버튼을 눌러도 촬영이 계속됩니다. 촬영 중에는 상단에 알림이 항상 표시되고, 알림의 \'중지\' 버튼으로 끝낼 수 있습니다.</string>
+    <string name="status_idle">대기 중</string>
+    <string name="status_recording">● 녹화 중</string>
+    <string name="camera_back">후면 카메라</string>
+    <string name="camera_front">전면 카메라</string>
+    <string name="record_audio">소리(마이크) 함께 녹음</string>
+    <string name="start_recording">녹화 시작</string>
+    <string name="stop_recording">녹화 중지</string>
+    <string name="battery_settings">배터리 최적화 제외 설정 열기</string>
+    <string name="tips">• 저장 위치: 갤러리 → Movies/BgRecorder\n• 삼성·샤오미 등은 배터리 최적화에서 이 앱을 제외해야 오래 촬영됩니다.\n• 녹화는 반드시 앱 화면을 연 상태에서 시작하세요.\n• 바로가기: 앱 아이콘을 길게 누르거나, 위 버튼으로 홈 화면에 아이콘을 만들면 누르는 즉시 녹화가 시작/중지됩니다. (마지막에 고른 카메라·소리 설정 사용)</string>
+    <string name="pin_shortcut">홈 화면에 바로가기 추가</string>
+    <string name="shortcut_short">빠른 녹화</string>
+    <string name="shortcut_long">녹화 시작/중지</string>
+    <string name="toast_started">녹화를 시작합니다</string>
+    <string name="toast_stopping">녹화를 중지합니다</string>
+    <string name="toast_pin_unsupported">이 홈 화면은 바로가기 추가를 지원하지 않습니다. 앱 아이콘을 길게 눌러 \'빠른 녹화\'를 사용하세요.</string>
+    <string name="notif_channel_name">녹화 상태</string>
+    <string name="notif_title">백그라운드 녹화 중</string>
+    <string name="notif_text">촬영이 진행 중입니다. 중지하려면 아래 버튼을 누르세요.</string>
+    <string name="notif_stop">중지</string>
+    <string name="toast_permission">카메라 권한이 필요합니다</string>
+    <string name="toast_saved">영상이 저장되었습니다 (Movies/BgRecorder)</string>
+    <string name="toast_error">녹화 중 오류가 발생했습니다</string>
+</resources>

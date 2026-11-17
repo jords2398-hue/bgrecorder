@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.BgRecorder" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <!-- 화면이 보이지 않는 투명 테마 (바로가기 전용) -->
+    <style name="Theme.BgRecorder.Transparent" parent="Theme.BgRecorder">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+</resources>
