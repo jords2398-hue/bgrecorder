@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var audioSwitch: MaterialSwitch
     private lateinit var cameraGroup: RadioGroup
     private lateinit var radioFront: RadioButton
+    private lateinit var qualityGroup: RadioGroup
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -48,10 +49,18 @@ class MainActivity : AppCompatActivity() {
         audioSwitch = findViewById(R.id.audioSwitch)
         cameraGroup = findViewById(R.id.cameraGroup)
         radioFront = findViewById(R.id.radioFront)
+        qualityGroup = findViewById(R.id.qualityGroup)
 
         // 지난번에 고른 설정 복원
         if (Prefs.useFront(this)) radioFront.isChecked = true else findViewById<RadioButton>(R.id.radioBack).isChecked = true
         audioSwitch.isChecked = Prefs.useAudio(this)
+        qualityGroup.check(
+            when (Prefs.quality(this)) {
+                Prefs.QUALITY_HD -> R.id.radioHd
+                Prefs.QUALITY_UHD -> R.id.radioUhd
+                else -> R.id.radioFhd
+            }
+        )
 
         startButton.setOnClickListener { requestPermissionsThenStart() }
         stopButton.setOnClickListener { RecordingService.stop(this) }
@@ -74,6 +83,13 @@ class MainActivity : AppCompatActivity() {
         stopButton.isEnabled = recording
         audioSwitch.isEnabled = !recording
         for (i in 0 until cameraGroup.childCount) cameraGroup.getChildAt(i).isEnabled = !recording
+        for (i in 0 until qualityGroup.childCount) qualityGroup.getChildAt(i).isEnabled = !recording
+    }
+
+    private fun currentQuality(): Int = when (qualityGroup.checkedRadioButtonId) {
+        R.id.radioHd -> Prefs.QUALITY_HD
+        R.id.radioUhd -> Prefs.QUALITY_UHD
+        else -> Prefs.QUALITY_FHD
     }
 
     private fun requestPermissionsThenStart() {
@@ -91,15 +107,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun startRecording() {
         // 바로가기에서도 같은 설정을 쓰도록 저장
-        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked)
+        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality())
         // 반드시 앱 화면이 보이는 상태에서 시작해야 Android 12+ 제한에 걸리지 않는다.
-        RecordingService.start(this, radioFront.isChecked, audioSwitch.isChecked)
+        RecordingService.start(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality())
     }
 
     /** 홈 화면에 '빠른 녹화' 아이콘을 만든다 (누르면 즉시 녹화 시작/중지). */
     private fun pinShortcut() {
         // 설정을 바꾸고 바로 눌렀을 때도 반영되도록 먼저 저장
-        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked)
+        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality())
 
         val manager = getSystemService(ShortcutManager::class.java)
         if (manager == null || !manager.isRequestPinShortcutSupported) {

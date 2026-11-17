@@ -55,6 +55,40 @@
                 android:text="@string/camera_front" />
         </RadioGroup>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/quality_label"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/qualityGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/radioHd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quality_hd" />
+
+            <RadioButton
+                android:id="@+id/radioFhd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/quality_fhd" />
+
+            <RadioButton
+                android:id="@+id/radioUhd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quality_uhd" />
+        </RadioGroup>
+
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/audioSwitch"
             android:layout_width="match_parent"

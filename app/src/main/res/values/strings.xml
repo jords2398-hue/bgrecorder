@@ -7,10 +7,14 @@
     <string name="camera_back">후면 카메라</string>
     <string name="camera_front">전면 카메라</string>
     <string name="record_audio">소리(마이크) 함께 녹음</string>
+    <string name="quality_label">화질</string>
+    <string name="quality_hd">보통 (720p)</string>
+    <string name="quality_fhd">높음 (1080p, 권장)</string>
+    <string name="quality_uhd">최고 (4K, 용량 큼)</string>
     <string name="start_recording">녹화 시작</string>
     <string name="stop_recording">녹화 중지</string>
     <string name="battery_settings">배터리 최적화 제외 설정 열기</string>
-    <string name="tips">• 저장 위치: 갤러리 → Movies/BgRecorder\n• 삼성·샤오미 등은 배터리 최적화에서 이 앱을 제외해야 오래 촬영됩니다.\n• 녹화는 반드시 앱 화면을 연 상태에서 시작하세요.\n• 바로가기: 앱 아이콘을 길게 누르거나, 위 버튼으로 홈 화면에 아이콘을 만들면 누르는 즉시 녹화가 시작/중지됩니다. (마지막에 고른 카메라·소리 설정 사용)</string>
+    <string name="tips">• 저장 위치: 갤러리 → Movies/BgRecorder\n• 삼성·샤오미 등은 배터리 최적화에서 이 앱을 제외해야 오래 촬영됩니다.\n• 녹화는 반드시 앱 화면을 연 상태에서 시작하세요.\n• 바로가기: 앱 아이콘을 길게 누르거나, 위 버튼으로 홈 화면에 아이콘을 만들면 누르는 즉시 녹화가 시작/중지됩니다. (마지막에 고른 카메라·화질·소리 설정 사용)\n• 화질이 높을수록 파일 용량이 커집니다. 기기가 4K를 지원하지 않으면 자동으로 낮은 화질로 녹화됩니다.</string>
     <string name="pin_shortcut">홈 화면에 바로가기 추가</string>
     <string name="shortcut_short">빠른 녹화</string>
     <string name="shortcut_long">녹화 시작/중지</string>

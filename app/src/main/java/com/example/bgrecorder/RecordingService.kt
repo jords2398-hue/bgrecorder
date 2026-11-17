@@ -56,6 +56,7 @@ class RecordingService : LifecycleService() {
         val useFront = intent?.getBooleanExtra(EXTRA_FRONT, false) ?: false
         val wantAudio = intent?.getBooleanExtra(EXTRA_AUDIO, true) ?: true
         val audio = wantAudio && hasPermission(Manifest.permission.RECORD_AUDIO)
+        val qualityLevel = intent?.getIntExtra(EXTRA_QUALITY, Prefs.quality(this)) ?: Prefs.quality(this)
 
         // startForegroundService() 후에는 반드시 바로 startForeground()를 호출해야 한다.
         startAsForeground(audio)
@@ -63,7 +64,7 @@ class RecordingService : LifecycleService() {
         if (recording == null && !starting) {
             stopRequested = false
             acquireWakeLock()
-            startRecording(useFront, audio)
+            startRecording(useFront, audio, qualityLevel)
         }
         return START_NOT_STICKY
     }
@@ -74,7 +75,7 @@ class RecordingService : LifecycleService() {
     private var starting = false
 
     @SuppressLint("MissingPermission") // 위에서 hasPermission()으로 확인함
-    private fun startRecording(useFront: Boolean, withAudio: Boolean) {
+    private fun startRecording(useFront: Boolean, withAudio: Boolean, qualityLevel: Int) {
         starting = true
         isRecording.postValue(true)
 
@@ -86,11 +87,17 @@ class RecordingService : LifecycleService() {
                 val provider = future.get()
                 cameraProvider = provider
 
+                // 고른 화질을 쓰고, 기기가 지원하지 않으면 그보다 낮은 화질 중 가장 높은 것으로 자동 대체
+                val desired = when (qualityLevel) {
+                    Prefs.QUALITY_HD -> Quality.HD
+                    Prefs.QUALITY_UHD -> Quality.UHD
+                    else -> Quality.FHD
+                }
                 val recorder = Recorder.Builder()
                     .setQualitySelector(
                         QualitySelector.from(
-                            Quality.HD,
-                            FallbackStrategy.lowerQualityOrHigherThan(Quality.SD)
+                            desired,
+                            FallbackStrategy.lowerQualityOrHigherThan(desired)
                         )
                     )
                     .build()
@@ -211,6 +218,7 @@ class RecordingService : LifecycleService() {
         const val ACTION_STOP = "com.example.bgrecorder.ACTION_STOP"
         const val EXTRA_FRONT = "extra_front"
         const val EXTRA_AUDIO = "extra_audio"
+        const val EXTRA_QUALITY = "extra_quality"
 
         private const val CHANNEL_ID = "recording"
         private const val NOTIF_ID = 1001
@@ -218,10 +226,11 @@ class RecordingService : LifecycleService() {
         /** 화면(Activity)이 녹화 상태를 관찰하는 용도 */
         val isRecording = MutableLiveData(false)
 
-        fun start(context: Context, front: Boolean, audio: Boolean) {
+        fun start(context: Context, front: Boolean, audio: Boolean, quality: Int) {
             val intent = Intent(context, RecordingService::class.java)
                 .putExtra(EXTRA_FRONT, front)
                 .putExtra(EXTRA_AUDIO, audio)
+                .putExtra(EXTRA_QUALITY, quality)
             ContextCompat.startForegroundService(context, intent)
         }
 

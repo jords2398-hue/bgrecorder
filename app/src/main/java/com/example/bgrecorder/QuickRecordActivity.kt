@@ -66,7 +66,7 @@ class QuickRecordActivity : AppCompatActivity() {
     }
 
     private fun startRecording() {
-        RecordingService.start(this, Prefs.useFront(this), Prefs.useAudio(this))
+        RecordingService.start(this, Prefs.useFront(this), Prefs.useAudio(this), Prefs.quality(this))
         Toast.makeText(applicationContext, R.string.toast_started, Toast.LENGTH_SHORT).show()
     }
 
