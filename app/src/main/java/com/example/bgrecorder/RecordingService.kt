@@ -128,8 +128,10 @@ class RecordingService : LifecycleService() {
 
                 recording = pending.start(ContextCompat.getMainExecutor(this)) { event ->
                     if (event is VideoRecordEvent.Finalize) {
-                        val msg = if (event.hasError()) R.string.toast_error else R.string.toast_saved
-                        Toast.makeText(applicationContext, msg, Toast.LENGTH_LONG).show()
+                        // 정상 저장 시에는 팝업을 띄우지 않고, 오류일 때만 알린다.
+                        if (event.hasError()) {
+                            Toast.makeText(applicationContext, R.string.toast_error, Toast.LENGTH_LONG).show()
+                        }
                         recording = null
                         stopSelf()
                     }
@@ -167,13 +169,17 @@ class RecordingService : LifecycleService() {
 
     private fun startAsForeground(audio: Boolean) {
         val nm = getSystemService(NotificationManager::class.java)
-        nm.createNotificationChannel(
-            NotificationChannel(
-                CHANNEL_ID,
-                getString(R.string.notif_channel_name),
-                NotificationManager.IMPORTANCE_LOW
-            )
-        )
+        // 소리·진동·팝업이 없는 조용한 채널 (녹화 중 알림 자체는 Android 규칙상 항상 표시됨)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            getString(R.string.notif_channel_name),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            setSound(null, null)
+            enableVibration(false)
+            setShowBadge(false)
+        }
+        nm.createNotificationChannel(channel)
 
         val stopIntent = Intent(this, RecordingService::class.java).setAction(ACTION_STOP)
         val stopPending = PendingIntent.getService(
@@ -190,6 +196,7 @@ class RecordingService : LifecycleService() {
             .setContentTitle(getString(R.string.notif_title))
             .setContentText(getString(R.string.notif_text))
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setContentIntent(openPending)

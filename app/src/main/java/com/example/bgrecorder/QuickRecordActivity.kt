@@ -42,7 +42,6 @@ class QuickRecordActivity : AppCompatActivity() {
 
         if (RecordingService.isRecording.value == true) {
             RecordingService.stop(this)
-            Toast.makeText(applicationContext, R.string.toast_stopping, Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -67,7 +66,6 @@ class QuickRecordActivity : AppCompatActivity() {
 
     private fun startRecording() {
         RecordingService.start(this, Prefs.useFront(this), Prefs.useAudio(this), Prefs.quality(this))
-        Toast.makeText(applicationContext, R.string.toast_started, Toast.LENGTH_SHORT).show()
     }
 
     private fun isGranted(permission: String) =
