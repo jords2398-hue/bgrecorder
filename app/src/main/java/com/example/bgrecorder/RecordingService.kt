@@ -111,16 +111,16 @@ class RecordingService : LifecycleService() {
                 val videoCapture = VideoCapture.withOutput(recorder)
                 val selector = if (useFront) {
                     CameraSelector.DEFAULT_FRONT_CAMERA
-                } else if (wide) {
+                } else {
+                    // 뒤쪽은 항상 이 필터를 거쳐서, '넓게'를 껐을 때도 기본 렌즈가
+                    // 확실히 고정되도록 한다 (기기에 따라 기본 선택이 광각 렌즈가 되는 경우 방지).
                     CameraSelector.Builder()
                         .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                         .addCameraFilter { infos ->
-                            val widest = pickWidestCamera(infos)
-                            if (widest != null) listOf(widest) else infos
+                            val picked = pickBackCamera(infos, wide)
+                            if (picked != null) listOf(picked) else infos
                         }
                         .build()
-                } else {
-                    CameraSelector.DEFAULT_BACK_CAMERA
                 }
 
                 // 미리보기(Preview) 없이 녹화만 바인딩한다.
@@ -158,33 +158,53 @@ class RecordingService : LifecycleService() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    /** 후면 카메라들 중 화각(FOV)이 가장 넓은 것을 고른다. 정보를 못 읽으면 null. */
+    /**
+     * 후면 카메라 중 하나를 고른다.
+     * wide=true  → 화각(FOV)이 가장 넓은 렌즈
+     * wide=false → 기본 렌즈. 카메라ID "0"번이 있으면 그걸 쓰고(기기 대부분의 표준 규칙),
+     *              없으면 화각이 가장 좁지 않은(=광각이 아닌) 렌즈 중 하나로 대체한다.
+     * 정보를 못 읽으면 null (이 경우 호출 쪽에서 원래 목록을 그대로 쓴다).
+     */
     @OptIn(ExperimentalCamera2Interop::class)
-    private fun pickWidestCamera(infos: List<CameraInfo>): CameraInfo? {
+    private fun pickBackCamera(infos: List<CameraInfo>, wide: Boolean): CameraInfo? {
         val manager = getSystemService(Context.CAMERA_SERVICE) as? CameraManager ?: return null
-        var best: CameraInfo? = null
-        var bestFov = -1.0
-        for (info in infos) {
-            try {
-                val id = Camera2CameraInfo.from(info).cameraId
-                val chars = manager.getCameraCharacteristics(id)
-                val focalLengths = chars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-                val sensorSize = chars.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
-                val focal = focalLengths?.minOrNull()
-                if (focal != null && focal > 0f && sensorSize != null) {
-                    val fov = 2 * Math.toDegrees(
-                        Math.atan((sensorSize.width / (2 * focal)).toDouble())
-                    )
-                    if (fov > bestFov) {
-                        bestFov = fov
-                        best = info
-                    }
-                }
+
+        data class Entry(val info: CameraInfo, val id: String, val fov: Double?)
+
+        val entries = infos.map { info ->
+            val id = try {
+                Camera2CameraInfo.from(info).cameraId
             } catch (e: Exception) {
-                // 이 카메라 정보는 건너뛴다.
+                null
             }
+            val fov = id?.let { computeFov(manager, it) }
+            Entry(info, id ?: "", fov)
         }
-        return best
+
+        if (wide) {
+            return entries.maxByOrNull { it.fov ?: -1.0 }?.info
+        }
+
+        // 기본 렌즈: 안드로이드 관례상 후면 메인 렌즈는 카메라ID "0"
+        entries.firstOrNull { it.id == "0" }?.let { return it.info }
+        // ID "0"이 없으면 화각이 가장 좁은(=배율이 가장 높은, 보통 메인/망원) 렌즈로 대체
+        return entries.minByOrNull { it.fov ?: Double.MAX_VALUE }?.info
+    }
+
+    private fun computeFov(manager: CameraManager, cameraId: String): Double? {
+        return try {
+            val chars = manager.getCameraCharacteristics(cameraId)
+            val focalLengths = chars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+            val sensorSize = chars.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+            val focal = focalLengths?.minOrNull()
+            if (focal != null && focal > 0f && sensorSize != null) {
+                2 * Math.toDegrees(Math.atan((sensorSize.width / (2 * focal)).toDouble()))
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun stopRecording() {

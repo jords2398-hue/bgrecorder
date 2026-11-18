@@ -2,42 +2,42 @@
 <resources>
     <string name="app_name">IMGIE</string>
 
-    <string name="status_idle">대기</string>
-    <string name="status_recording">● 사용 중</string>
+    <string name="status_idle">Idle</string>
+    <string name="status_recording">● Active</string>
 
-    <string name="camera_back">뒤</string>
-    <string name="camera_front">앞</string>
-    <string name="wide_angle">넓게</string>
-    <string name="record_audio">소리 함께</string>
+    <string name="camera_back">Back</string>
+    <string name="camera_front">Front</string>
+    <string name="wide_angle">Wide</string>
+    <string name="record_audio">With sound</string>
 
-    <string name="quality_hd">저용량</string>
-    <string name="quality_fhd">보통</string>
-    <string name="quality_uhd">고용량</string>
+    <string name="quality_hd">Low</string>
+    <string name="quality_fhd">Standard</string>
+    <string name="quality_uhd">High</string>
 
-    <string name="start_recording">시작</string>
-    <string name="stop_recording">중지</string>
-    <string name="battery_settings">절전 제외 설정 열기</string>
+    <string name="start_recording">Start</string>
+    <string name="stop_recording">Stop</string>
+    <string name="battery_settings">Open battery settings</string>
 
-    <string name="pin_shortcut">바로가기 추가</string>
-    <string name="shortcut_short">빠른 시작</string>
-    <string name="shortcut_long">시작 / 중지</string>
+    <string name="pin_shortcut">Add shortcut</string>
+    <string name="shortcut_short">Quick start</string>
+    <string name="shortcut_long">Start / Stop</string>
 
-    <string name="icon_picker_label">아이콘 선택</string>
-    <string name="icon_label_battery">배터리</string>
-    <string name="icon_label_calc">계산기</string>
-    <string name="icon_label_memo">메모</string>
-    <string name="icon_label_weather">날씨</string>
-    <string name="icon_label_calendar">달력</string>
-    <string name="toast_icon_changed">홈 화면에서 아이콘이 바뀝니다</string>
+    <string name="icon_picker_label">Choose icon</string>
+    <string name="icon_label_battery">Battery</string>
+    <string name="icon_label_calc">Calculator</string>
+    <string name="icon_label_memo">Notes</string>
+    <string name="icon_label_weather">Weather</string>
+    <string name="icon_label_calendar">Calendar</string>
+    <string name="toast_icon_changed">The icon will update on your home screen</string>
 
-    <string name="toast_pin_unsupported">이 홈 화면은 바로가기 추가를 지원하지 않습니다. 앱 아이콘을 길게 눌러보세요.</string>
+    <string name="toast_pin_unsupported">This home screen doesn\'t support shortcuts. Try long-pressing the app icon instead.</string>
 
-    <string name="notif_channel_name">상태</string>
-    <string name="notif_title">진행 중</string>
-    <string name="notif_text">중지하려면 아래 버튼을 누르세요.</string>
-    <string name="notif_stop">중지</string>
+    <string name="notif_channel_name">Status</string>
+    <string name="notif_title">Active</string>
+    <string name="notif_text">Tap the button below to stop.</string>
+    <string name="notif_stop">Stop</string>
 
-    <string name="toast_permission">권한이 필요합니다</string>
-    <string name="toast_saved">저장되었습니다</string>
-    <string name="toast_error">오류가 발생했습니다</string>
+    <string name="toast_permission">Permission required</string>
+    <string name="toast_saved">Saved</string>
+    <string name="toast_error">Something went wrong</string>
 </resources>
