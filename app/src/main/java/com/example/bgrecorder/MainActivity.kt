@@ -76,6 +76,9 @@ class MainActivity : AppCompatActivity() {
         )
         iconGroup.check(iconButtonIds[Prefs.iconIndex(this)])
 
+        // 앱을 열 때마다, 길게 누르기 메뉴의 바로가기 아이콘도 현재 고른 아이콘과 맞춘다.
+        ShortcutsHelper.refreshDynamic(this)
+
         startButton.setOnClickListener { requestPermissionsThenStart() }
         stopButton.setOnClickListener { RecordingService.stop(this) }
         findViewById<Button>(R.id.pinButton).setOnClickListener { pinShortcut() }
@@ -88,16 +91,28 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // 설정을 바꾸는 즉시 저장한다 (시작 버튼을 누르지 않아도 바로가기에 바로 반영되도록).
+        cameraGroup.setOnCheckedChangeListener { _, _ -> persistCurrentSettings() }
+        wideSwitch.setOnCheckedChangeListener { _, _ -> persistCurrentSettings() }
+        audioSwitch.setOnCheckedChangeListener { _, _ -> persistCurrentSettings() }
+        qualityGroup.setOnCheckedChangeListener { _, _ -> persistCurrentSettings() }
+
         iconGroup.setOnCheckedChangeListener { _, checkedId ->
             val index = iconButtonIds.indexOf(checkedId)
             if (index >= 0) {
                 Prefs.saveIconIndex(this, index)
                 IconManager.apply(this, index)
+                ShortcutsHelper.refreshDynamic(this)
                 Toast.makeText(this, R.string.toast_icon_changed, Toast.LENGTH_SHORT).show()
             }
         }
 
         RecordingService.isRecording.observe(this) { recording -> render(recording == true) }
+    }
+
+    /** 현재 화면의 설정을 바로 저장한다. 바로가기는 이 값을 그대로 읽어서 쓴다. */
+    private fun persistCurrentSettings() {
+        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality(), wideSwitch.isChecked)
     }
 
     private fun render(recording: Boolean) {
@@ -131,15 +146,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun startRecording() {
         // 바로가기에서도 같은 설정을 쓰도록 저장
-        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality(), wideSwitch.isChecked)
+        persistCurrentSettings()
         // 반드시 앱 화면이 보이는 상태에서 시작해야 Android 12+ 제한에 걸리지 않는다.
         RecordingService.start(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality(), wideSwitch.isChecked)
     }
 
-    /** 홈 화면에 빠른 시작 아이콘을 만든다 (누르면 즉시 시작/중지). */
+    /** 홈 화면에 빠른 시작 아이콘을 만든다 (누르면 즉시 시작/중지). 현재 고른 아이콘을 그대로 쓴다. */
     private fun pinShortcut() {
         // 설정을 바꾸고 바로 눌렀을 때도 반영되도록 먼저 저장
-        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality(), wideSwitch.isChecked)
+        persistCurrentSettings()
 
         val manager = getSystemService(ShortcutManager::class.java)
         if (manager == null || !manager.isRequestPinShortcutSupported) {
@@ -151,7 +166,7 @@ class MainActivity : AppCompatActivity() {
         val info = ShortcutInfo.Builder(this, "quick_record_pinned")
             .setShortLabel(getString(R.string.shortcut_short))
             .setLongLabel(getString(R.string.shortcut_long))
-            .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_vector))
+            .setIcon(Icon.createWithResource(this, ShortcutsHelper.pinnedIconRes(this)))
             .setIntent(intent)
             .build()
         manager.requestPinShortcut(info, null)

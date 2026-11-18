@@ -16,6 +16,26 @@ object IconManager {
         PREFIX + "IconCalendar"
     )
 
+    private val DRAWABLES = listOf(
+        R.drawable.ic_launcher_vector,
+        R.drawable.ic_icon_calc,
+        R.drawable.ic_icon_memo,
+        R.drawable.ic_icon_weather,
+        R.drawable.ic_icon_calendar
+    )
+
+    private val LABELS = listOf(
+        R.string.icon_label_battery,
+        R.string.icon_label_calc,
+        R.string.icon_label_memo,
+        R.string.icon_label_weather,
+        R.string.icon_label_calendar
+    )
+
+    fun drawableRes(index: Int): Int = DRAWABLES[index.coerceIn(0, DRAWABLES.lastIndex)]
+
+    fun labelRes(index: Int): Int = LABELS[index.coerceIn(0, LABELS.lastIndex)]
+
     fun apply(context: Context, index: Int) {
         val pm = context.packageManager
         val target = index.coerceIn(0, ALIASES.lastIndex)
