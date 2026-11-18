@@ -10,9 +10,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.os.PowerManager
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.annotation.OptIn
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.FallbackStrategy
@@ -57,6 +63,7 @@ class RecordingService : LifecycleService() {
         val wantAudio = intent?.getBooleanExtra(EXTRA_AUDIO, true) ?: true
         val audio = wantAudio && hasPermission(Manifest.permission.RECORD_AUDIO)
         val qualityLevel = intent?.getIntExtra(EXTRA_QUALITY, Prefs.quality(this)) ?: Prefs.quality(this)
+        val wide = intent?.getBooleanExtra(EXTRA_WIDE, false) ?: false
 
         // startForegroundService() 후에는 반드시 바로 startForeground()를 호출해야 한다.
         startAsForeground(audio)
@@ -64,7 +71,7 @@ class RecordingService : LifecycleService() {
         if (recording == null && !starting) {
             stopRequested = false
             acquireWakeLock()
-            startRecording(useFront, audio, qualityLevel)
+            startRecording(useFront, audio, qualityLevel, wide)
         }
         return START_NOT_STICKY
     }
@@ -75,7 +82,7 @@ class RecordingService : LifecycleService() {
     private var starting = false
 
     @SuppressLint("MissingPermission") // 위에서 hasPermission()으로 확인함
-    private fun startRecording(useFront: Boolean, withAudio: Boolean, qualityLevel: Int) {
+    private fun startRecording(useFront: Boolean, withAudio: Boolean, qualityLevel: Int, wide: Boolean) {
         starting = true
         isRecording.postValue(true)
 
@@ -104,6 +111,14 @@ class RecordingService : LifecycleService() {
                 val videoCapture = VideoCapture.withOutput(recorder)
                 val selector = if (useFront) {
                     CameraSelector.DEFAULT_FRONT_CAMERA
+                } else if (wide) {
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                        .addCameraFilter { infos ->
+                            val widest = pickWidestCamera(infos)
+                            if (widest != null) listOf(widest) else infos
+                        }
+                        .build()
                 } else {
                     CameraSelector.DEFAULT_BACK_CAMERA
                 }
@@ -112,11 +127,11 @@ class RecordingService : LifecycleService() {
                 provider.unbindAll()
                 provider.bindToLifecycle(this, selector, videoCapture)
 
-                val name = "BG_" + SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                val name = "IMG_" + SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                 val values = ContentValues().apply {
                     put(MediaStore.Video.Media.DISPLAY_NAME, name)
                     put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
-                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/BgRecorder")
+                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/IMGIE")
                 }
                 val output = MediaStoreOutputOptions.Builder(
                     contentResolver,
@@ -141,6 +156,35 @@ class RecordingService : LifecycleService() {
                 stopSelf()
             }
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    /** 후면 카메라들 중 화각(FOV)이 가장 넓은 것을 고른다. 정보를 못 읽으면 null. */
+    @OptIn(ExperimentalCamera2Interop::class)
+    private fun pickWidestCamera(infos: List<CameraInfo>): CameraInfo? {
+        val manager = getSystemService(Context.CAMERA_SERVICE) as? CameraManager ?: return null
+        var best: CameraInfo? = null
+        var bestFov = -1.0
+        for (info in infos) {
+            try {
+                val id = Camera2CameraInfo.from(info).cameraId
+                val chars = manager.getCameraCharacteristics(id)
+                val focalLengths = chars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+                val sensorSize = chars.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+                val focal = focalLengths?.minOrNull()
+                if (focal != null && focal > 0f && sensorSize != null) {
+                    val fov = 2 * Math.toDegrees(
+                        Math.atan((sensorSize.width / (2 * focal)).toDouble())
+                    )
+                    if (fov > bestFov) {
+                        bestFov = fov
+                        best = info
+                    }
+                }
+            } catch (e: Exception) {
+                // 이 카메라 정보는 건너뛴다.
+            }
+        }
+        return best
     }
 
     private fun stopRecording() {
@@ -226,18 +270,20 @@ class RecordingService : LifecycleService() {
         const val EXTRA_FRONT = "extra_front"
         const val EXTRA_AUDIO = "extra_audio"
         const val EXTRA_QUALITY = "extra_quality"
+        const val EXTRA_WIDE = "extra_wide"
 
-        private const val CHANNEL_ID = "recording"
+        private const val CHANNEL_ID = "status"
         private const val NOTIF_ID = 1001
 
-        /** 화면(Activity)이 녹화 상태를 관찰하는 용도 */
+        /** 화면(Activity)이 진행 상태를 관찰하는 용도 */
         val isRecording = MutableLiveData(false)
 
-        fun start(context: Context, front: Boolean, audio: Boolean, quality: Int) {
+        fun start(context: Context, front: Boolean, audio: Boolean, quality: Int, wide: Boolean) {
             val intent = Intent(context, RecordingService::class.java)
                 .putExtra(EXTRA_FRONT, front)
                 .putExtra(EXTRA_AUDIO, audio)
                 .putExtra(EXTRA_QUALITY, quality)
+                .putExtra(EXTRA_WIDE, wide)
             ContextCompat.startForegroundService(context, intent)
         }
 

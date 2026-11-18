@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 흰색 배경 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,0h108v108h-108z" />
+
+    <!-- 고리 -->
+    <path
+        android:fillColor="#37474F"
+        android:pathData="M34,14H40V30H34Z M68,14H74V30H68Z" />
+
+    <!-- 본체 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#37474F"
+        android:strokeWidth="4"
+        android:pathData="M22,24H86A4,4 0 0 1 90,28V88A4,4 0 0 1 86,92H22A4,4 0 0 1 18,88V28A4,4 0 0 1 22,24Z" />
+
+    <!-- 상단 바 -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M20,28H88V42H20Z" />
+
+    <!-- 날짜 칸 -->
+    <path
+        android:fillColor="#CFD8DC"
+        android:pathData="M26,50H38V60H26Z M44,50H56V60H44Z M62,50H74V60H62Z
+                           M26,68H38V78H26Z M44,68H56V78H44Z" />
+</vector>

@@ -65,7 +65,13 @@ class QuickRecordActivity : AppCompatActivity() {
     }
 
     private fun startRecording() {
-        RecordingService.start(this, Prefs.useFront(this), Prefs.useAudio(this), Prefs.quality(this))
+        RecordingService.start(
+            this,
+            Prefs.useFront(this),
+            Prefs.useAudio(this),
+            Prefs.quality(this),
+            Prefs.useWide(this)
+        )
     }
 
     private fun isGranted(permission: String) =

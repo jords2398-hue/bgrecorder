@@ -26,9 +26,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
     private lateinit var audioSwitch: MaterialSwitch
+    private lateinit var wideSwitch: MaterialSwitch
     private lateinit var cameraGroup: RadioGroup
     private lateinit var radioFront: RadioButton
     private lateinit var qualityGroup: RadioGroup
+    private lateinit var iconGroup: RadioGroup
+
+    private val iconButtonIds = IntArray(5)
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -47,13 +51,22 @@ class MainActivity : AppCompatActivity() {
         startButton = findViewById(R.id.startButton)
         stopButton = findViewById(R.id.stopButton)
         audioSwitch = findViewById(R.id.audioSwitch)
+        wideSwitch = findViewById(R.id.wideSwitch)
         cameraGroup = findViewById(R.id.cameraGroup)
         radioFront = findViewById(R.id.radioFront)
         qualityGroup = findViewById(R.id.qualityGroup)
+        iconGroup = findViewById(R.id.iconGroup)
+
+        iconButtonIds[0] = R.id.iconBattery
+        iconButtonIds[1] = R.id.iconCalc
+        iconButtonIds[2] = R.id.iconMemo
+        iconButtonIds[3] = R.id.iconWeather
+        iconButtonIds[4] = R.id.iconCalendar
 
         // 지난번에 고른 설정 복원
         if (Prefs.useFront(this)) radioFront.isChecked = true else findViewById<RadioButton>(R.id.radioBack).isChecked = true
         audioSwitch.isChecked = Prefs.useAudio(this)
+        wideSwitch.isChecked = Prefs.useWide(this)
         qualityGroup.check(
             when (Prefs.quality(this)) {
                 Prefs.QUALITY_HD -> R.id.radioHd
@@ -61,6 +74,7 @@ class MainActivity : AppCompatActivity() {
                 else -> R.id.radioFhd
             }
         )
+        iconGroup.check(iconButtonIds[Prefs.iconIndex(this)])
 
         startButton.setOnClickListener { requestPermissionsThenStart() }
         stopButton.setOnClickListener { RecordingService.stop(this) }
@@ -74,6 +88,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        iconGroup.setOnCheckedChangeListener { _, checkedId ->
+            val index = iconButtonIds.indexOf(checkedId)
+            if (index >= 0) {
+                Prefs.saveIconIndex(this, index)
+                IconManager.apply(this, index)
+                Toast.makeText(this, R.string.toast_icon_changed, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         RecordingService.isRecording.observe(this) { recording -> render(recording == true) }
     }
 
@@ -82,6 +105,7 @@ class MainActivity : AppCompatActivity() {
         startButton.isEnabled = !recording
         stopButton.isEnabled = recording
         audioSwitch.isEnabled = !recording
+        wideSwitch.isEnabled = !recording
         for (i in 0 until cameraGroup.childCount) cameraGroup.getChildAt(i).isEnabled = !recording
         for (i in 0 until qualityGroup.childCount) qualityGroup.getChildAt(i).isEnabled = !recording
     }
@@ -107,15 +131,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun startRecording() {
         // 바로가기에서도 같은 설정을 쓰도록 저장
-        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality())
+        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality(), wideSwitch.isChecked)
         // 반드시 앱 화면이 보이는 상태에서 시작해야 Android 12+ 제한에 걸리지 않는다.
-        RecordingService.start(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality())
+        RecordingService.start(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality(), wideSwitch.isChecked)
     }
 
-    /** 홈 화면에 '빠른 녹화' 아이콘을 만든다 (누르면 즉시 녹화 시작/중지). */
+    /** 홈 화면에 빠른 시작 아이콘을 만든다 (누르면 즉시 시작/중지). */
     private fun pinShortcut() {
         // 설정을 바꾸고 바로 눌렀을 때도 반영되도록 먼저 저장
-        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality())
+        Prefs.save(this, radioFront.isChecked, audioSwitch.isChecked, currentQuality(), wideSwitch.isChecked)
 
         val manager = getSystemService(ShortcutManager::class.java)
         if (manager == null || !manager.isRequestPinShortcutSupported) {

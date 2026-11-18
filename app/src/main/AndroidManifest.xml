@@ -20,20 +20,96 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BgRecorder">
 
+        <!-- 실제 화면. 홈 화면 아이콘은 아래 activity-alias 5종이 대신 맡는다. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop" />
+
+        <!-- 아이콘 선택지 1: 배터리 -->
+        <activity-alias
+            android:name=".IconBattery"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:enabled="true"
+            android:icon="@drawable/ic_launcher_vector"
+            android:label="@string/icon_label_battery">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <!-- 앱 아이콘을 길게 눌렀을 때 나오는 '빠른 녹화' 메뉴 -->
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
-        </activity>
+        </activity-alias>
+
+        <!-- 아이콘 선택지 2: 계산기 -->
+        <activity-alias
+            android:name=".IconCalc"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:icon="@drawable/ic_icon_calc"
+            android:label="@string/icon_label_calc">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <!-- 아이콘 선택지 3: 메모 -->
+        <activity-alias
+            android:name=".IconMemo"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:icon="@drawable/ic_icon_memo"
+            android:label="@string/icon_label_memo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <!-- 아이콘 선택지 4: 날씨 -->
+        <activity-alias
+            android:name=".IconWeather"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:icon="@drawable/ic_icon_weather"
+            android:label="@string/icon_label_weather">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity-alias>
+
+        <!-- 아이콘 선택지 5: 달력 -->
+        <activity-alias
+            android:name=".IconCalendar"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:icon="@drawable/ic_icon_calendar"
+            android:label="@string/icon_label_calendar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity-alias>
 
         <!-- 바로가기로 열리는 투명 화면 (다른 앱이 호출하지 못하게 exported=false) -->
         <activity
