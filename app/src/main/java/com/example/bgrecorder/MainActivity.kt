@@ -10,6 +10,7 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.KeyEvent
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -174,4 +175,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun isGranted(permission: String) =
         ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+
+    // 화면이 켜져 이 화면이 보이는 동안에는, 볼륨 내리기 버튼으로 바로 시작/중지할 수 있다.
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (RecordingService.isRecording.value == true) {
+                RecordingService.stop(this)
+            } else {
+                requestPermissionsThenStart()
+            }
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
 }
